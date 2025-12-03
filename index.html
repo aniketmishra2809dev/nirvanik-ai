@@ -4,145 +4,138 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Nirvanik AI | Do What You Love</title>
-    
-    <!-- 1. Load Tailwind Library -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    
-    <!-- 2. Apply Config IMMEDIATELY -->
+
+    <!-- Tailwind CDN with custom config -->
     <script>
-      tailwind.config = {
-        theme: {
-          extend: {
-            colors: {
-              background: '#0f0f11',
-              primary: '#ffffff',
-              secondary: '#a1a1aa',
-              accent: {
-                violet: '#6d28d9',
-                lime: '#ccf381',
+      window.tailwind = {
+        config: {
+          content: ["./index.html", "./**/*.{js,ts,jsx,tsx}"],
+          theme: {
+            extend: {
+              colors: {
+                background: '#0f0f11',
+                primary: '#ffffff',
+                secondary: '#a1a1aa',
+                accent: {
+                  violet: '#6d28d9',
+                  lime: '#ccf381',
+                },
+                surface: '#18181b',
+                border: '#3f3f46'
               },
-              surface: '#18181b',
-              border: '#3f3f46'
-            },
-            fontFamily: {
-              sans: ['Inter', 'sans-serif'],
-              display: ['Space Grotesk', 'sans-serif'],
-            },
-            animation: {
-              'marquee': 'marquee 20s linear infinite',
-            },
-            keyframes: {
-              marquee: {
-                '0%': { transform: 'translateX(0)' },
-                '100%': { transform: 'translateX(-33.33%)' },
+              fontFamily: {
+                sans: ['Inter', 'sans-serif'],
+                display: ['Space Grotesk', 'sans-serif'],
+              },
+              animation: {
+                'marquee': 'marquee 20s linear infinite',
+              },
+              keyframes: {
+                marquee: {
+                  '0%': { transform: 'translateX(0)' },
+                  '100%': { transform: 'translateX(-33.33%)' },
+                }
               }
             }
-          }
+          },
+          // Force include these classes safely
+          safelist: [
+            'grid-cols-1', 'md:grid-cols-2', 'md:grid-cols-3', 'md:grid-cols-4',
+            'bg-background', 'text-primary', 'bg-accent-lime', 'text-accent-lime',
+            'bg-surface', 'border-border', 'backdrop-blur-md', 'fixed', 'absolute', 'inset-0'
+          ]
         }
       }
     </script>
+    <script src="https://cdn.tailwindcss.com"></script>
 
-    <!-- 3. Load Fonts -->
+    <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
-    
-    <style>
-      body {
-        background-color: #0f0f11;
-        color: #ffffff;
-        margin: 0;
-        overflow-x: hidden; /* Prevent horizontal scroll on load */
-      }
 
-      /* Native HTML Loader - Visible before React mounts */
+    <style>
+      /* Critical CSS to prevent FOUC (Flash of Unstyled Content) */
+      :root {
+        --bg-color: #0f0f11;
+        --text-color: #ffffff;
+      }
+      body { 
+        background-color: var(--bg-color); 
+        color: var(--text-color); 
+        margin: 0; 
+      }
+      
+      /* Hide scrollbar */
+      .no-scrollbar::-webkit-scrollbar { display: none; }
+      .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+      /* Loader */
       #app-loader {
-        position: fixed;
-        inset: 0;
-        z-index: 9999;
+        position: fixed; inset: 0; z-index: 9999;
         background-color: #0f0f11;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        transition: opacity 0.5s ease-out, visibility 0.5s ease-out;
+        display: flex; flex-direction: column; align-items: center; justify-content: center;
+        transition: opacity 0.5s ease-out, visibility 0.5s;
       }
-      
       .loader-spinner {
-        width: 50px;
-        height: 50px;
-        border: 3px solid #18181b; /* Surface color */
-        border-top-color: #ccf381; /* Accent Lime */
-        border-radius: 50%;
-        animation: spin 1s linear infinite;
-        margin-bottom: 20px;
+        width: 50px; height: 50px;
+        border: 3px solid #18181b; border-top-color: #ccf381;
+        border-radius: 50%; animation: spin 1s linear infinite; margin-bottom: 20px;
       }
-      
       .loader-text {
-        font-family: 'Space Grotesk', sans-serif;
-        font-weight: bold;
-        letter-spacing: 0.1em;
-        color: #ffffff;
-        font-size: 1.2rem;
+        font-family: 'Space Grotesk', sans-serif; font-weight: bold;
+        letter-spacing: 0.1em; color: #ffffff; font-size: 1.2rem;
         animation: pulse 2s infinite;
       }
-
       @keyframes spin { to { transform: rotate(360deg); } }
       @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
 
-      /* Utility to hide things visually but keep them for Tailwind Scanner */
-      .tailwind-primer {
-        display: none !important;
-      }
-      
-      /* Hide scrollbar for clean UI globally */
-      .no-scrollbar::-webkit-scrollbar {
-        display: none;
-      }
-      .no-scrollbar {
-        -ms-overflow-style: none;
-        scrollbar-width: none;
-      }
+      /* Primer Div - keeps JIT classes available */
+      .tailwind-primer { display: none !important; }
     </style>
-
-    <script type="importmap">
-    {
-      "imports": {
-        "react/": "https://aistudiocdn.com/react@^19.2.0/",
-        "react": "https://aistudiocdn.com/react@^19.2.0",
-        "react-dom/": "https://aistudiocdn.com/react-dom@^19.2.0/",
-        "framer-motion": "https://aistudiocdn.com/framer-motion@^12.23.25",
-        "react-router-dom": "https://aistudiocdn.com/react-router-dom@^7.9.6",
-        "lucide-react": "https://aistudiocdn.com/lucide-react@^0.555.0",
-        "recharts": "https://aistudiocdn.com/recharts@^3.5.1"
-      }
-    }
-    </script>
-  </head>
+  <script type="importmap">
+{
+  "imports": {
+    "react": "https://esm.sh/react@18.2.0",
+    "react-dom/client": "https://esm.sh/react-dom@18.2.0/client",
+    "react-dom": "https://esm.sh/react-dom@18.2.0",
+    "framer-motion": "https://esm.sh/framer-motion@10.16.4?external=react,react-dom",
+    "react-router-dom": "https://esm.sh/react-router-dom@6.22.3?external=react,react-dom",
+    "lucide-react": "https://esm.sh/lucide-react@0.344.0?external=react,react-dom",
+    "recharts": "https://esm.sh/recharts@2.12.2?external=react,react-dom",
+    "react-dom/": "https://aistudiocdn.com/react-dom@^19.2.1/",
+    "react/": "https://aistudiocdn.com/react@^19.2.1/"
+  }
+}
+</script>
+</head>
   <body class="bg-background text-primary antialiased selection:bg-accent-lime selection:text-black">
-    
-    <!-- PRE-LOADER -->
+
+    <!-- Full-screen loader -->
     <div id="app-loader">
       <div class="loader-spinner"></div>
       <div class="loader-text">NIRVANIK AI</div>
     </div>
 
-    <!-- TAILWIND PRIMER: Forces CDN to generate these classes immediately -->
+    <!-- 
+      Tailwind Primer
+      This hidden div forces the CDN to generate these classes before React loads.
+      Crucial for fixing the "unorganized" layout issue.
+    -->
     <div class="tailwind-primer">
-      <!-- Layouts -->
       <div class="grid grid-cols-1 md:grid-cols-2 md:grid-cols-3 md:grid-cols-4 gap-4 gap-6 gap-8 gap-12"></div>
       <div class="flex flex-col flex-row items-center justify-between justify-center w-full h-full min-h-screen"></div>
-      <!-- Colors -->
-      <div class="bg-background bg-surface bg-accent-lime bg-accent-violet bg-primary bg-secondary border-border border-accent-lime border-accent-violet text-accent-lime text-accent-violet text-secondary text-transparent bg-clip-text bg-gradient-to-r from-accent-lime to-accent-violet"></div>
-      <!-- Spacing -->
+      <div class="bg-background bg-surface bg-accent-lime bg-accent-violet bg-primary bg-secondary border-border border-accent-lime border-accent-violet"></div>
+      <div class="text-accent-lime text-accent-violet text-secondary text-transparent bg-clip-text bg-gradient-to-r from-accent-lime to-accent-violet"></div>
       <div class="pt-20 pt-32 pb-20 px-6 px-8 px-12 py-8 py-20 mt-12 mb-6 mb-20 mx-auto max-w-7xl max-w-4xl max-w-2xl max-w-md"></div>
-      <!-- Typography -->
       <div class="font-display font-sans font-bold font-medium text-xs text-sm text-lg text-xl text-2xl text-3xl text-4xl text-5xl text-6xl md:text-7xl md:text-8xl leading-tight tracking-tighter"></div>
-      <!-- Components -->
       <div class="rounded-full rounded-2xl rounded-xl rounded-lg backdrop-blur-md backdrop-blur-xl opacity-0 opacity-20 opacity-100 group hover:scale-105 transition-transform duration-300 duration-700 animate-pulse animate-marquee"></div>
-      <div class="absolute inset-0 relative z-10 z-50 overflow-hidden overflow-x-hidden"></div>
     </div>
 
     <div id="root"></div>
+
+    <!-- Entry Point -->
+    <script type="module" src="./index.tsx"></script>
+
   </body>
 </html>
